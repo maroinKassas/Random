@@ -75,7 +75,7 @@ sysinfo.txt
 .DS_Store
 
 # Ignorer les fichiers .vsidx dans le dossier filecontentIndex
-filecontentIndex/*.vsidx
+FileContentIndex/*.vsidx
 
 # Ignorer les fichiers .cs.rej
 *.cs.rej
