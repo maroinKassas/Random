@@ -1,27 +1,27 @@
 using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 public class TacticsCamera : MonoBehaviour
 {
-    private static float zoomSpeed = 2.0f; // Vitesse de zoom
-    private static float minZoom = 3.0f;   // Taille orthographique minimum
-    private static float maxZoom = 5.0f;   // Taille orthographique maximum (mise à jour à 5)
+    private static float zoomSpeed = 2.0f;
+    private static float minZoom = 3.0f;
+    private static float maxZoom = 5.0f;
 
-    private static int dragSpeed = 1; // Vitesse de déplacement
-    private Vector3 dragOrigin;
-    // Limites de la caméra
-    /*private static int minX = -7;
-    private static int maxX = 1;
-    private static int minY = 2;
-    private static int maxY = 7;
-    private bool isDragging = false;*/
+    private static Vector3 repositionPosition = new Vector3(-3.0f, 5.0f, -3.0f);
+    private static Quaternion repositionRotation = Quaternion.Euler(30.0f, 45.0f, 0.0f);
 
-    private static Vector3 repositionPosition = new Vector3(-3f, 5f, -3f);
-    // Durée du déplacement
     private static float moveDuration = 0.75f;
-    private bool isMoving = false;
 
+    public Transform target;
+    public float distance = 10.0f;
+    public float xSpeed = 120.0f;
+    public float ySpeed = 120.0f;
+    public float yMinLimit = -20.0f;
+    public float yMaxLimit = 80.0f;
+
+    private float x = 0.0f;
+    private float y = 0.0f;
+    private bool isMovingCamera = false;
 
     void Update()
     {
@@ -32,51 +32,69 @@ public class TacticsCamera : MonoBehaviour
             Camera.main.orthographicSize -= scrollData * zoomSpeed;
             Camera.main.orthographicSize = Mathf.Clamp(Camera.main.orthographicSize, minZoom, maxZoom);
         }
+    }
 
-        if (Input.GetMouseButtonDown(1)) // Changement du bouton de 0 (clic gauche) à 1 (clic droit)
+    void LateUpdate()
+    {
+        if (Input.GetMouseButton(1))
         {
-            // Enregistre la position de la souris en coordonnées du monde lorsque le clic droit est enfoncé
-            dragOrigin = Camera.main.ScreenToWorldPoint(Input.mousePosition);
+            if (isMovingCamera)
+            {
+                StopCoroutine(MoveCameraToPosition());
+                isMovingCamera = false;
+            }
+
+            x += Input.GetAxis("Mouse X") * xSpeed * 0.02f;
+            y -= Input.GetAxis("Mouse Y") * ySpeed * 0.02f;
+
+            y = ClampAngle(y, yMinLimit, yMaxLimit);
+
+            Quaternion rotation = Quaternion.Euler(y, x, 0);
+            Vector3 position = rotation * new Vector3(0.0f, 0.0f, -distance) + target.position;
+
+            transform.SetPositionAndRotation(position, rotation);
         }
-
-        if (Input.GetMouseButton(1)) // Changement du bouton de 0 (clic gauche) à 1 (clic droit)
+        else if (!isMovingCamera)
         {
-            // Calcule la position actuelle de la souris en coordonnées du monde
-            Vector3 currentMousePos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
-            Vector3 difference = dragOrigin - currentMousePos;
+            Vector3 angles = transform.eulerAngles;
+            x = angles.y;
+            y = angles.x;
 
-            // Calcule des limites
-           /*difference.x = Mathf.Clamp(difference.x, minX, maxX);
-            difference.y = Mathf.Clamp(difference.y, minY, maxY);*/
-
-            // Déplace la caméra en fonction de la différence de position multipliée par la vitesse de déplacement
-            Camera.main.transform.position += difference * dragSpeed;
-        }
-
-        // Si le clic de la roulette de la souris est détecté et la caméra n'est pas déjà en mouvement
-        if (Input.GetMouseButtonDown(2) && !isMoving)
-        {
-            // Déclencher la coroutine pour le déplacement progressif
-            StartCoroutine(MoveCameraToPosition(repositionPosition, moveDuration));
+            StartCoroutine(MoveCameraToPosition());
         }
     }
 
-    private IEnumerator MoveCameraToPosition(Vector3 targetPosition, float duration)
+    private IEnumerator MoveCameraToPosition()
     {
-        isMoving = true;
-        float elapsedTime = 0;
-        Vector3 startingPos = transform.position;
+        isMovingCamera = true;
+        float elapsedTime = 0.0f;
+        Vector3 startingPosition = transform.position;
+        Quaternion startingRotation = transform.rotation;
 
-        // Déplacer progressivement la caméra vers la position cible
-        while (elapsedTime < duration)
+        while (elapsedTime < moveDuration)
         {
-            transform.position = Vector3.Lerp(startingPos, targetPosition, (elapsedTime / duration));
+            float timeDuration = elapsedTime / moveDuration;
+            transform.SetPositionAndRotation(
+                Vector3.Lerp(startingPosition, repositionPosition, timeDuration),
+                Quaternion.Lerp(startingRotation, repositionRotation, timeDuration));
             elapsedTime += Time.deltaTime;
             yield return null;
         }
 
-        // S'assurer que la caméra est à la position cible exacte
-        transform.position = targetPosition;
-        isMoving = false;
+        transform.SetPositionAndRotation(repositionPosition, repositionRotation);
+        isMovingCamera = false;
+    }
+
+    private static float ClampAngle(float angle, float min, float max)
+    {
+        if (angle < -360F)
+        {
+            angle += 360F;
+        }
+        if (angle > 360F)
+        {
+            angle -= 360F;
+        }
+        return Mathf.Clamp(angle, min, max);
     }
 }
