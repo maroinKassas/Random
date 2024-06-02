@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using Unity.VisualScripting;
 using UnityEngine;
 
 public class PlayerMove : TacticsMove
@@ -16,7 +17,7 @@ public class PlayerMove : TacticsMove
         if (!moving)
         {
             FindSelectableTiles();
-            CheckMouse();
+            OnMouseOver();
         }
         else
         {
@@ -24,20 +25,21 @@ public class PlayerMove : TacticsMove
         }
     }
 
-    public void CheckMouse()
+    public void OnMouseOver()
     {
-        if (Input.GetMouseButtonUp(0))
+        Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+
+        RaycastHit raycastHit;
+        if (Physics.Raycast(ray, out raycastHit))
         {
-            Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
-
-            RaycastHit raycastHit;
-            if (Physics.Raycast(ray, out raycastHit))
+            if (raycastHit.collider.tag == "Tile")
             {
-                if (raycastHit.collider.tag == "Tile")
-                {
-                    Tile tile = raycastHit.collider.GetComponent<Tile>();
+                Tile tile = raycastHit.collider.GetComponent<Tile>();
 
-                    if (tile.selectable)
+                if (tile.selectable)
+                {
+                    DisplayPath(tile);
+                    if (Input.GetMouseButtonUp(0))
                     {
                         MoveToTile(tile);
                     }

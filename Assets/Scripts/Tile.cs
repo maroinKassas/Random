@@ -6,8 +6,8 @@ public class Tile : MonoBehaviour
 {
     public bool walkable = true;
     public bool current = false;
-    public bool target = false;
     public bool selectable = false;
+    public bool hover = false;
 
     public bool visited = false;
     public Tile parent = null;
@@ -25,9 +25,9 @@ public class Tile : MonoBehaviour
     {
         if (current)
         {
-            GetComponent<Renderer>().material.color = Color.magenta;
+            GetComponent<Renderer>().material.color = Color.black;
         }
-        else if (target)
+        else if (hover)
         {
             GetComponent<Renderer>().material.color = Color.green;
         }
@@ -46,8 +46,8 @@ public class Tile : MonoBehaviour
         adjacencyList.Clear();
 
         current = false;
-        target = false;
         selectable = false;
+        hover = false;
 
         visited = false;
         parent = null;

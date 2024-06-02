@@ -32,13 +32,13 @@ public class TacticsMove : MonoBehaviour
         halfHeight = GetComponent<Collider>().bounds.extents.y;
     }
 
-    public void GetCurrentTile()
+    private void GetCurrentTile()
     {
         currentTile = GetTargetTile(gameObject);
         currentTile.current = true;
     }
 
-    public Tile GetTargetTile(GameObject target)
+    private Tile GetTargetTile(GameObject target)
     {
         RaycastHit raycastHit;
         Tile tile = null;
@@ -51,7 +51,7 @@ public class TacticsMove : MonoBehaviour
         return tile;
     }
 
-    public void ComputeAdjacencyLists()
+    private void ComputeAdjacencyLists()
     {
         foreach (Tile tile in tiles)
         {
@@ -61,7 +61,8 @@ public class TacticsMove : MonoBehaviour
 
     public void FindSelectableTiles()
     {
-        selectableTiles.Clear(); // Réinitialise la liste des tuiles sélectionnables
+        // Réinitialise la liste des tuiles sélectionnables
+        selectableTiles.Clear(); 
 
         ComputeAdjacencyLists();
         GetCurrentTile();
@@ -95,15 +96,25 @@ public class TacticsMove : MonoBehaviour
         }
     }
 
+    public void DisplayPath(Tile tile)
+    {
+        CheckMove(tile);
+    }
+
     public void MoveToTile(Tile tile)
     {
-        path.Clear();
-        tile.target = true;
         moving = true;
+        CheckMove(tile);
+    }
+
+    private void CheckMove(Tile tile)
+    {
+        path.Clear();
 
         Tile next = tile;
         while (next != null)
         {
+            next.hover = true;
             path.Push(next);
             next = next.parent;
         }
@@ -111,37 +122,41 @@ public class TacticsMove : MonoBehaviour
 
     public void Move()
     {
-        if (path.Count > 0)
-        {
-            Tile tile = path.Peek();
-            Vector3 target = tile.transform.position;
-
-            // Calculate the unit's position on top of the target tile
-            target.y += halfHeight + tile.GetComponent<Collider>().bounds.extents.y;
-
-            if (Vector3.Distance(transform.position, target) >= 0.05f)
-            {
-                CalculateHeading(target);
-                SetHorizontalVelocity();
-
-                transform.forward = heading;
-                transform.position += velocity * Time.deltaTime;
-            }
-            else
-            {
-                // Tile center reached
-                transform.position = target;
-                path.Pop();
-            }
-        }
-        else
+        if (path.Count <= 0)
         {
             RemoveSelectableTiles();
             moving = false;
+            return;
         }
+
+        Tile tile = path.Peek();
+        Vector3 target = tile.transform.position;
+
+        // Calculate the unit's position on top of the target tile
+        target.y += halfHeight + tile.GetComponent<Collider>().bounds.extents.y;
+
+        if (Vector3.Distance(transform.position, target) >= 0.05f)
+        {
+            CalculateHeading(target);
+            SetHorizontalVelocity();
+
+            transform.forward = heading;
+            transform.position += velocity * Time.deltaTime;
+        }
+        else
+        {
+            // Tile center reached
+            transform.position = target;
+            path.Pop();
+            if (!tile.current)
+            {
+                move--;
+            }
+        }
+        
     }
 
-    protected void RemoveSelectableTiles()
+    private void RemoveSelectableTiles()
     {
         if (currentTile != null)
         {
@@ -157,13 +172,13 @@ public class TacticsMove : MonoBehaviour
         selectableTiles.Clear();
     }
 
-    public void CalculateHeading(Vector3 target)
+    private void CalculateHeading(Vector3 target)
     {
         heading = target - transform.position;
         heading.Normalize();
     }
 
-    public void SetHorizontalVelocity()
+    private void SetHorizontalVelocity()
     {
         velocity = heading * moveSpeed;
     }
