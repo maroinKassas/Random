@@ -11,7 +11,7 @@ public class TacticsMove : MonoBehaviour
     public Tile currentTile;
 
     public bool moving = false;
-    public int move = 5;
+    public int move = 500;
     public float jumpHeight = 2;
     public float moveSpeed = 10;
 
@@ -20,13 +20,24 @@ public class TacticsMove : MonoBehaviour
 
     public float halfHeight = 0;
 
+    public bool fallingDown = false;
+    public bool jumpingUp = false;
+    public bool movingEdge = false;
+    public float jumpVelocity = 4.5f;
+
+    public Vector3 jumpTarget;
+
     protected void Init()
     {
         // Récupère toutes les tuiles au début du jeu
         GameObject[] tileObjects = GameObject.FindGameObjectsWithTag("Tile");
         foreach (GameObject tileObject in tileObjects)
         {
-            tiles.Add(tileObject.GetComponent<Tile>());
+            Tile tile = tileObject.GetComponent<Tile>();
+            if (tile != null)
+            {
+                tiles.Add(tile);
+            }
         }
 
         halfHeight = GetComponent<Collider>().bounds.extents.y;
@@ -35,7 +46,11 @@ public class TacticsMove : MonoBehaviour
     private void GetCurrentTile()
     {
         currentTile = GetTargetTile(gameObject);
-        currentTile.current = true;
+        if (currentTile != null)
+        {
+            currentTile.current = true;
+            currentTile.distance = 0; // Initialise la distance de la tuile actuelle
+        }
     }
 
     private Tile GetTargetTile(GameObject target)
@@ -62,7 +77,7 @@ public class TacticsMove : MonoBehaviour
     public void FindSelectableTiles()
     {
         // Réinitialise la liste des tuiles sélectionnables
-        selectableTiles.Clear(); 
+        selectableTiles.Clear();
 
         ComputeAdjacencyLists();
         GetCurrentTile();
@@ -132,28 +147,36 @@ public class TacticsMove : MonoBehaviour
         Tile tile = path.Peek();
         Vector3 target = tile.transform.position;
 
-        // Calculate the unit's position on top of the target tile
+        // Calcule la position de l'unité au-dessus de la tuile cible
         target.y += halfHeight + tile.GetComponent<Collider>().bounds.extents.y;
 
-        if (Vector3.Distance(transform.position, target) >= 0.05f)
+        if (Vector3.Distance(transform.position, target) >= 0.01f * moveSpeed)
         {
-            CalculateHeading(target);
-            SetHorizontalVelocity();
+            if (transform.position.y != target.y)
+            {
+                Jump(target);
+            }
+            else
+            {
+                CalculateHeading(target);
+                SetHorizontalVelocity();
+            }
 
+            // Locomotion
             transform.forward = heading;
             transform.position += velocity * Time.deltaTime;
         }
         else
         {
-            // Tile center reached
+            // Centre de la tuile atteint
             transform.position = target;
             path.Pop();
+
             if (!tile.current)
             {
                 move--;
             }
         }
-        
     }
 
     private void RemoveSelectableTiles()
@@ -175,11 +198,112 @@ public class TacticsMove : MonoBehaviour
     private void CalculateHeading(Vector3 target)
     {
         heading = target - transform.position;
-        heading.Normalize();
+        if (heading.magnitude > 0.01f) // Vérification que heading n'est pas presque nul
+        {
+            heading.Normalize();
+        }
+        else
+        {
+            heading = Vector3.zero;
+        }
     }
 
     private void SetHorizontalVelocity()
     {
         velocity = heading * moveSpeed;
+    }
+
+    private void Jump(Vector3 target)
+    {
+        if (fallingDown)
+        {
+            FallDownward(target);
+        }
+        else if (jumpingUp)
+        {
+            JumpUpward(target);
+        }
+        else if (movingEdge)
+        {
+            MoveToEdge();
+        }
+        else
+        {
+            PrepareJump(target);
+        }
+    }
+
+    private void FallDownward(Vector3 target)
+    {
+        velocity += Physics.gravity * Time.deltaTime;
+
+        if (transform.position.y <= target.y)
+        {
+            fallingDown = false;
+            jumpingUp = false;
+            movingEdge = false;
+
+            Vector3 position = transform.position;
+            position.y = target.y;
+            transform.position = position;
+
+            velocity = new Vector3();
+        }
+    }
+
+    private void JumpUpward(Vector3 target)
+    {
+        velocity += Physics.gravity * Time.deltaTime;
+
+        if (transform.position.y > target.y)
+        {
+            jumpingUp = false;
+            fallingDown = true;
+        }
+    }
+
+    private void MoveToEdge()
+    {
+        if (Vector3.Distance(transform.position, jumpTarget) >= 0.05f)
+        {
+            SetHorizontalVelocity();
+        }
+        else
+        {
+            movingEdge = false;
+            fallingDown = true;
+
+            velocity /= 5.0f;
+            velocity.y = 1.5f;
+        }
+    }
+
+    private void PrepareJump(Vector3 target)
+    {
+        float targetY = target.y;
+        target.y = transform.position.y;
+
+        CalculateHeading(target);
+
+        if (transform.position.y > targetY)
+        {
+            fallingDown = false;
+            jumpingUp = false;
+            movingEdge = true;
+
+            jumpTarget = transform.position + (target - transform.position) / 2.0f;
+        }
+        else
+        {
+            fallingDown = false;
+            jumpingUp = false;
+            movingEdge = false;
+
+            velocity = heading * moveSpeed / 3.0f;
+
+            float difference = targetY - transform.position.y;
+
+            velocity.y = jumpVelocity * (0.5f + difference / 2.0f);
+        }
     }
 }
