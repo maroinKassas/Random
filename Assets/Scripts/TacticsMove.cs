@@ -1,6 +1,8 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UIElements.Experimental;
+using static UnityEngine.GraphicsBuffer;
 
 public class TacticsMove : MonoBehaviour
 {
@@ -11,8 +13,8 @@ public class TacticsMove : MonoBehaviour
     public Tile currentTile;
 
     public bool moving = false;
-    public int move = 500;
-    public float jumpHeight = 2;
+    public int movementPoint = 500;
+    public float heightMax = -1.5f;
     public float moveSpeed = 10;
 
     public Vector3 velocity = new Vector3();
@@ -23,7 +25,7 @@ public class TacticsMove : MonoBehaviour
     public bool fallingDown = false;
     public bool jumpingUp = false;
     public bool movingEdge = false;
-    public float jumpVelocity = 4.5f;
+    public float jumpVelocity = 5.0f;
 
     public Vector3 jumpTarget;
 
@@ -70,7 +72,7 @@ public class TacticsMove : MonoBehaviour
     {
         foreach (Tile tile in tiles)
         {
-            tile.FindNeighbors(jumpHeight);
+            tile.FindNeighbors(heightMax);
         }
     }
 
@@ -95,7 +97,7 @@ public class TacticsMove : MonoBehaviour
             selectableTiles.Add(tileProcess);
             tileProcess.selectable = true;
 
-            if (tileProcess.distance < move)
+            if (tileProcess.distance < movementPoint)
             {
                 foreach (Tile tile in tileProcess.adjacencyList)
                 {
@@ -152,19 +154,23 @@ public class TacticsMove : MonoBehaviour
 
         if (Vector3.Distance(transform.position, target) >= 0.01f * moveSpeed)
         {
+
+            CalculateHeading(target);
+
             if (transform.position.y != target.y)
             {
                 Jump(target);
             }
             else
             {
-                CalculateHeading(target);
                 SetHorizontalVelocity();
             }
 
             // Locomotion
             transform.forward = heading;
             transform.position += velocity * Time.deltaTime;
+            // Verrouiller la rotation sur l'axe x
+            LockRotationXAndZ();
         }
         else
         {
@@ -174,9 +180,16 @@ public class TacticsMove : MonoBehaviour
 
             if (!tile.current)
             {
-                move--;
+                movementPoint--;
             }
         }
+    }
+
+    private void LockRotationXAndZ()
+    {
+        Quaternion rotation = transform.rotation;
+        rotation.eulerAngles = new Vector3(0, rotation.eulerAngles.y, 0);
+        transform.rotation = rotation;
     }
 
     private void RemoveSelectableTiles()
@@ -264,7 +277,7 @@ public class TacticsMove : MonoBehaviour
 
     private void MoveToEdge()
     {
-        if (Vector3.Distance(transform.position, jumpTarget) >= 0.05f)
+        if (Vector3.Distance(transform.position, jumpTarget) >= 0.01f * moveSpeed)
         {
             SetHorizontalVelocity();
         }
@@ -282,8 +295,6 @@ public class TacticsMove : MonoBehaviour
     {
         float targetY = target.y;
         target.y = transform.position.y;
-
-        CalculateHeading(target);
 
         if (transform.position.y > targetY)
         {
