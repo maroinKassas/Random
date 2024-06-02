@@ -15,7 +15,7 @@ public class TacticsMove : MonoBehaviour
     public bool moving = false;
     public int movementPoint = 500;
     public float heightMax = -1.5f;
-    public float moveSpeed = 10;
+    public float moveSpeed = 5;
 
     public Vector3 velocity = new Vector3();
     public Vector3 heading = new Vector3();
@@ -277,13 +277,14 @@ public class TacticsMove : MonoBehaviour
 
     private void MoveToEdge()
     {
-        if (Vector3.Distance(transform.position, jumpTarget) >= 0.01f * moveSpeed)
+        movingEdge = false;
+
+        if (Vector3.Distance(transform.position, jumpTarget) >= 0.01f)
         {
             SetHorizontalVelocity();
         }
         else
         {
-            movingEdge = false;
             fallingDown = true;
 
             velocity /= 5.0f;
@@ -307,7 +308,7 @@ public class TacticsMove : MonoBehaviour
         else
         {
             fallingDown = false;
-            jumpingUp = false;
+            jumpingUp = true;
             movingEdge = false;
 
             velocity = heading * moveSpeed / 3.0f;
