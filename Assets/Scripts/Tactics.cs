@@ -11,7 +11,8 @@ public class Tactics : MonoBehaviour
     public float currentTime;
     public TextMeshProUGUI timerText;
 
-    protected int movementPoint;
+    public int movementPoint;
+    private Coroutine timerCoroutine;
 
     protected void InitTactics()
     {
@@ -26,14 +27,19 @@ public class Tactics : MonoBehaviour
     {
         turn = true;
         currentTime = totalTime;
-        StartCoroutine(StartTimer());
+        timerCoroutine = StartCoroutine(StartTimer());
     }
 
     public void EndTurn()
     {
         turn = false;
         ResetStatsTurn();
-        StopCoroutine(StartTimer());
+
+        if (timerCoroutine != null)
+        {
+            StopCoroutine(timerCoroutine);
+            timerCoroutine = null;
+        }
     }
 
     public void ResetStatsTurn()
