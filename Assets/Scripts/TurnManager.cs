@@ -1,20 +1,12 @@
-using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
 public class TurnManager : MonoBehaviour
 {
-    private static Dictionary<string, List<TacticsMove>> units = new Dictionary<string, List<TacticsMove>>();
-    private static Queue<string> turnKey = new Queue<string>();
-    private static Queue<TacticsMove> turnTeam = new Queue<TacticsMove>();
+    private static readonly Dictionary<string, List<Tactics>> units = new Dictionary<string, List<Tactics>>();
+    private static readonly Queue<string> turnKey = new Queue<string>();
+    private static readonly Queue<Tactics> turnTeam = new Queue<Tactics>();
 
-    // Start is called before the first frame update
-    void Start()
-    {
-        
-    }
-
-    // Update is called once per frame
     void Update()
     {
         if (turnTeam.Count == 0)
@@ -25,11 +17,11 @@ public class TurnManager : MonoBehaviour
 
     private static void InitTeamTurnQueue()
     {
-        List<TacticsMove> teamList = units[turnKey.Peek()];
+        List<Tactics> tacticsList = units[turnKey.Peek()];
 
-        foreach (TacticsMove unit in teamList)
+        foreach (Tactics tactics in tacticsList)
         {
-            turnTeam.Enqueue(unit);
+            turnTeam.Enqueue(tactics);
         }
 
         StartTurn();
@@ -45,9 +37,8 @@ public class TurnManager : MonoBehaviour
 
     public static void EndTurn()
     {
-        TacticsMove unit = turnTeam.Dequeue();
-        unit.EndTurn();
-        unit.resetMovementPoint();
+        Tactics tactics = turnTeam.Dequeue();
+        tactics.EndTurn();
 
         if (turnTeam.Count > 0)
         {
@@ -55,31 +46,31 @@ public class TurnManager : MonoBehaviour
         }
         else
         {
-            string team = turnKey.Dequeue();
-            turnKey.Enqueue(team);
+            string tacticsName = turnKey.Dequeue();
+            turnKey.Enqueue(tacticsName);
             InitTeamTurnQueue();
         }
     }
 
-    public static void AddUnit(TacticsMove unit)
+    public static void AddUnit(Tactics tactics)
     {
-        List<TacticsMove> tacticsMoves;
+        List<Tactics> tacticsList;
 
-        if (!units.ContainsKey(unit.tag))
+        if (!units.ContainsKey(tactics.tag))
         {
-            tacticsMoves = new List<TacticsMove>();
-            units[unit.tag] = tacticsMoves;
+            tacticsList = new List<Tactics>();
+            units[tactics.tag] = tacticsList;
 
-            if (!turnKey.Contains(unit.tag))
+            if (!turnKey.Contains(tactics.tag))
             {
-                turnKey.Enqueue(unit.tag);
+                turnKey.Enqueue(tactics.tag);
             }
         }
         else
         {
-            tacticsMoves = units[unit.tag];
+            tacticsList = units[tactics.tag];
         }
 
-        tacticsMoves.Add(unit);
+        tacticsList.Add(tactics);
     }
 }

@@ -8,7 +8,8 @@ public class PlayerMove : TacticsMove
     // Start is called before the first frame update
     void Start()
     {
-        Init();
+        InitTactics();
+        InitMovement();
     }
 
     // Update is called once per frame

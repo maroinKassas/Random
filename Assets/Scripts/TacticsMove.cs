@@ -1,16 +1,15 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class TacticsMove : MonoBehaviour
+public class TacticsMove : Tactics
 {
     public List<Tile> selectableTiles = new List<Tile>();
-    public List<Tile> tiles = new List<Tile>(); // Liste de toutes les tuiles au début du jeu
+    public List<Tile> tiles = new List<Tile>();
 
     public Stack<Tile> path = new Stack<Tile>();
     public Tile currentTile;
 
     public bool moving = false;
-    public int movementPoint;
     public float heightMax = -1.5f;
     public float moveSpeed = 5; 
 
@@ -25,10 +24,7 @@ public class TacticsMove : MonoBehaviour
     public float jumpVelocity = 5.0f;
 
     public Vector3 jumpTarget;
-
-    public bool turn = false;
-
-    protected void Init()
+    protected void InitMovement()
     {
         GameObject[] tileObjects = GameObject.FindGameObjectsWithTag("Tile");
         foreach (GameObject tileObject in tileObjects)
@@ -41,10 +37,6 @@ public class TacticsMove : MonoBehaviour
         }
 
         halfHeight = GetComponent<Collider>().bounds.extents.y;
-
-        movementPoint = GetComponent<Stats>().movementPoint;
-
-        TurnManager.AddUnit(this);
     }
 
     private void GetCurrentTile()
@@ -80,7 +72,6 @@ public class TacticsMove : MonoBehaviour
 
     public void FindSelectableTiles()
     {
-        // Réinitialise la liste des tuiles sélectionnables
         selectableTiles.Clear();
 
         ComputeAdjacencyLists();
@@ -90,7 +81,6 @@ public class TacticsMove : MonoBehaviour
 
         process.Enqueue(currentTile);
         currentTile.visited = true;
-        //currentTile.parent = null;
 
         while (process.Count > 0)
         {
@@ -319,20 +309,5 @@ public class TacticsMove : MonoBehaviour
 
             velocity.y = jumpVelocity * (0.5f + difference / 2.0f);
         }
-    }
-
-    public void BeginTurn()
-    {
-        turn = true;
-    }
-
-    public void EndTurn()
-    {
-        turn = false;
-    }
-
-    public void resetMovementPoint()
-    {
-        movementPoint = GetComponent<Stats>().movementPoint;
     }
 }
