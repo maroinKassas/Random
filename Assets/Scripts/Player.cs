@@ -1,34 +1,37 @@
-using System.Collections;
-using System.Collections.Generic;
-using Unity.VisualScripting;
 using UnityEngine;
 
-public class PlayerMove : TacticsMove
+public class Player : MonoBehaviour
 {
-    // Start is called before the first frame update
+    private TacticsMove tacticsMove;
+    private Tactics tactics;
+
     void Start()
     {
-        InitTactics();
-        InitMovement();
+        tactics = GetComponent<Tactics>();
+        tacticsMove = GetComponent<TacticsMove>();
+
+        tactics.Init();
+        tacticsMove.Init();
     }
 
-    // Update is called once per frame
     void Update()
     {
-        if (!turn)
+        if (!tactics.turn)
         {
             return;
         }
 
-        if (!moving)
+        if (!tactics.isMoving)
         {
-            FindSelectableTiles();
+            tacticsMove.FindSelectableTiles();
             OnMouseOver();
         }
         else
         {
-            Move();
+            tacticsMove.Move();
         }
+
+        tactics.SetStatsText();
     }
 
     public void OnMouseOver()
@@ -44,10 +47,10 @@ public class PlayerMove : TacticsMove
 
                 if (tile.selectable)
                 {
-                    DisplayPath(tile);
+                    tacticsMove.DisplayPath(tile);
                     if (Input.GetMouseButtonUp(0))
                     {
-                        MoveToTile(tile);
+                        tacticsMove.MoveToTile(tile);
                     }
                 }
             }
