@@ -1,15 +1,15 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class TacticsMove : Tactics
+public class TacticsMove : MonoBehaviour
 {
+    public Tactics tactics;
     public List<Tile> selectableTiles = new List<Tile>();
     public List<Tile> tiles = new List<Tile>();
 
     public Stack<Tile> path = new Stack<Tile>();
     public Tile currentTile;
 
-    public bool moving = false;
     public float heightMax = -1.5f;
     public float moveSpeed = 5; 
 
@@ -24,8 +24,9 @@ public class TacticsMove : Tactics
     public float jumpVelocity = 5.0f;
 
     public Vector3 jumpTarget;
-    protected void InitMovement()
+    public void Init()
     {
+        tactics = GetComponent<Tactics>();
         GameObject[] tileObjects = GameObject.FindGameObjectsWithTag("Tile");
         foreach (GameObject tileObject in tileObjects)
         {
@@ -89,7 +90,7 @@ public class TacticsMove : Tactics
             selectableTiles.Add(tileProcess);
             tileProcess.selectable = true;
 
-            if (tileProcess.distance < movementPoint)
+            if (tileProcess.distance < tactics.movementPoint)
             {
                 foreach (Tile tile in tileProcess.adjacencyList)
                 {
@@ -112,7 +113,7 @@ public class TacticsMove : Tactics
 
     public void MoveToTile(Tile tile)
     {
-        moving = true;
+        tactics.isMoving = true;
         CheckMove(tile);
     }
 
@@ -134,7 +135,7 @@ public class TacticsMove : Tactics
         if (path.Count <= 0)
         {
             RemoveSelectableTiles();
-            moving = false;
+            tactics.isMoving = false;
             return;
         }
 
@@ -172,7 +173,7 @@ public class TacticsMove : Tactics
 
             if (!tile.current)
             {
-                movementPoint--;
+                tactics.movementPoint--;
             }
         }
     }
