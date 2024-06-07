@@ -2,8 +2,8 @@ using UnityEngine;
 
 public class Player : MonoBehaviour
 {
-    private TacticsMove tacticsMove;
     private Tactics tactics;
+    private TacticsMove tacticsMove;
 
     void Start()
     {
@@ -38,10 +38,9 @@ public class Player : MonoBehaviour
     {
         Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
 
-        RaycastHit raycastHit;
-        if (Physics.Raycast(ray, out raycastHit))
+        if (Physics.Raycast(ray, out RaycastHit raycastHit))
         {
-            if (raycastHit.collider.tag == "Tile")
+            if (raycastHit.collider.CompareTag("Tile"))
             {
                 Tile tile = raycastHit.collider.GetComponent<Tile>();
 
