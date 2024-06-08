@@ -37,13 +37,13 @@ public class Tactics : MonoBehaviour
         TurnManager.AddUnit(this);
     }
 
-    public void BeginTurn()
+    public void BeginsHisTurn()
     {
         turn = true;
         timerCoroutine = StartCoroutine(StartTimer());
     }
 
-    public void EndTurn()
+    public void EndsHisTurn()
     {
         if (timerCoroutine != null)
         {
@@ -61,6 +61,13 @@ public class Tactics : MonoBehaviour
         manaPoint = stats.manaPoint;
     }
 
+    public void SetStatsText()
+    {
+        textHealthPoint.text = healthPoint.ToString();
+        textRiskPoint.text = riskPoint.ToString();
+        textMovementPoint.text = movementPoint.ToString();
+    }
+
     private IEnumerator StartTimer()
     {
         while (totalTime > 0)
@@ -70,17 +77,10 @@ public class Tactics : MonoBehaviour
             totalTime -= 1f;
         }
 
-        EndTurn();
+        EndsHisTurn();
     }
 
-    public void SetStatsText()
-    {
-        textHealthPoint.text = healthPoint.ToString();
-        textRiskPoint.text = riskPoint.ToString();
-        textMovementPoint.text = movementPoint.ToString();
-    }
-
-    public IEnumerator WaitToEndMoveToEnd()
+    private IEnumerator WaitToEndMoveToEnd()
     {
         while (isMoving)
         {

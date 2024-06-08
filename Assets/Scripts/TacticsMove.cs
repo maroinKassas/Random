@@ -24,14 +24,14 @@ public class TacticsMove : MonoBehaviour
     public float jumpVelocity = 5.0f;
 
     public Vector3 jumpTarget;
+
     public void Init()
     {
         tactics = GetComponent<Tactics>();
         GameObject[] tileObjects = GameObject.FindGameObjectsWithTag("Tile");
         foreach (GameObject tileObject in tileObjects)
         {
-            Tile tile = tileObject.GetComponent<Tile>();
-            if (tile != null)
+            if (tileObject.TryGetComponent<Tile>(out var tile))
             {
                 tiles.Add(tile);
             }
@@ -40,7 +40,7 @@ public class TacticsMove : MonoBehaviour
         halfHeight = GetComponent<Collider>().bounds.extents.y;
     }
 
-    private void GetCurrentTile()
+    protected void GetCurrentTile()
     {
         currentTile = GetTargetTile(gameObject);
         if (currentTile != null)
@@ -50,7 +50,7 @@ public class TacticsMove : MonoBehaviour
         }
     }
 
-    private Tile GetTargetTile(GameObject target)
+    protected Tile GetTargetTile(GameObject target)
     {
         RaycastHit raycastHit;
         Tile tile = null;
@@ -63,7 +63,7 @@ public class TacticsMove : MonoBehaviour
         return tile;
     }
 
-    private void ComputeAdjacencyLists()
+    protected void ComputeAdjacencyLists()
     {
         foreach (Tile tile in tiles)
         {

@@ -14,13 +14,13 @@ public class TurnManager : MonoBehaviour
     private static void StartTurn()
     {
         Tactics tactics = turnQueue.Peek();
-        tactics.BeginTurn();
+        tactics.BeginsHisTurn();
     }
 
     public static void EndTurn()
     {
         Tactics tactics = turnQueue.Peek();
-        tactics.EndTurn();
+        tactics.EndsHisTurn();
     }
 
     public static void NextTurn()
