@@ -2,7 +2,7 @@ using UnityEngine;
 
 public abstract class Character : MonoBehaviour
 {
-    protected bool intoBattle;
+    public bool intoBattle;
     protected TacticsBattle tacticsBattle;
     protected TacticsMove tacticsMove;
 

@@ -1,95 +1,92 @@
 using System.Collections;
-using TMPro;
+using System.Collections.Generic;
 using UnityEngine;
 
 public class Tactics : MonoBehaviour
 {
-    public bool isMoving = false;
-    public bool turn = false;
+    public List<Tile> selectableTiles = new List<Tile>();
+    public Tile currentTile;
 
-    public Stats stats;
+    public float heightMax = -1.5f;
 
-    public int healthPoint;
-    public float totalTime;
-    public int movementPoint;
-    public int manaPoint;
-    public int riskPoint;
-
-    public TextMeshProUGUI textHealthPoint;
-    public TextMeshProUGUI textRiskPoint;
-    public TextMeshProUGUI textMovementPoint;
-    public TextMeshProUGUI textTimer;
-
-    private Coroutine timerCoroutine;
-
-    public void Start()
+    public Tile GetTargetTile(GameObject target)
     {
-        stats = GetComponent<Stats>();
-        healthPoint = stats.healthPoint;
-        totalTime = stats.totalTime;
-        movementPoint = stats.movementPoint;
-        manaPoint = stats.manaPoint;
-        riskPoint = stats.riskPoint;
-    }
+        Tile tile = null;
 
-    public void Init()
-    {
-        TurnManager.AddUnit(this);
-    }
-
-    public void BeginsHisTurn()
-    {
-        turn = true;
-        timerCoroutine = StartCoroutine(StartTimer());
-    }
-
-    public void EndsHisTurn()
-    {
-        if (timerCoroutine != null)
+        if (Physics.Raycast(target.transform.position, -Vector3.up, out RaycastHit raycastHit, 1))
         {
-            StopCoroutine(timerCoroutine);
-            timerCoroutine = null;
+            tile = raycastHit.collider.GetComponent<Tile>();
         }
 
-        StartCoroutine(WaitToEndMoveToEnd());
+        return tile;
     }
 
-    public void ResetStats()
+    protected void GetCurrentTile()
     {
-        totalTime = stats.totalTime;
-        movementPoint = stats.movementPoint;
-        manaPoint = stats.manaPoint;
-    }
-
-    public void SetStatsText()
-    {
-        textHealthPoint.text = healthPoint.ToString();
-        textRiskPoint.text = riskPoint.ToString();
-        textMovementPoint.text = movementPoint.ToString();
-    }
-
-    private IEnumerator StartTimer()
-    {
-        while (totalTime > 0)
+        currentTile = GetTargetTile(gameObject);
+        if (currentTile != null)
         {
-            textTimer.text = totalTime.ToString("F2") + "s";
-            yield return new WaitForSeconds(1f);
-            totalTime -= 1f;
+            currentTile.current = true;
+            currentTile.distance = 0;
+        }
+    }
+
+    protected void ComputeAdjacencyLists()
+    {
+        foreach (Tile tile in BattleManager.GetBattleMap())
+        {
+            tile.FindNeighbors(heightMax);
+        }
+    }
+
+    public void FindSelectableTiles(float distancePoint)
+    {
+        selectableTiles.Clear();
+
+        ComputeAdjacencyLists();
+        GetCurrentTile();
+
+        Queue<Tile> process = new Queue<Tile>();
+
+        process.Enqueue(currentTile);
+        currentTile.visited = true;
+
+        while (process.Count > 0)
+        {
+            Tile tileProcess = process.Dequeue();
+
+            selectableTiles.Add(tileProcess);
+            tileProcess.selectable = true;
+
+            if (tileProcess.distance < distancePoint)
+            {
+                foreach (Tile tile in tileProcess.adjacencyList)
+                {
+                    if (!tile.visited)
+                    {
+                        tile.parent = tileProcess;
+                        tile.visited = true;
+                        tile.distance = 1 + tileProcess.distance;
+                        process.Enqueue(tile);
+                    }
+                }
+            }
+        }
+    }
+
+    protected void RemoveSelectableTiles()
+    {
+        if (currentTile != null)
+        {
+            currentTile.current = false;
+            currentTile = null;
         }
 
-        EndsHisTurn();
-    }
-
-    private IEnumerator WaitToEndMoveToEnd()
-    {
-        while (isMoving)
+        foreach (Tile tile in selectableTiles)
         {
-            yield return null;
+            tile.Reset();
         }
 
-        turn = false;
-        ResetStats();
-
-        TurnManager.NextTurn();
+        selectableTiles.Clear();
     }
 }

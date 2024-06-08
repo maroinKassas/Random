@@ -1,133 +1,46 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class TacticsMove : MonoBehaviour
+public class TacticsMove : Tactics
 {
-    public Tactics tactics;
-    public List<Tile> selectableTiles = new List<Tile>();
-    public List<Tile> tiles = new List<Tile>();
+    // Fields
+    private bool intoBattle = false;
+    public TacticsBattle tacticsBattle;
 
     public Stack<Tile> path = new Stack<Tile>();
-    public Tile currentTile;
 
-    public float heightMax = -1.5f;
-    public float moveSpeed = 5; 
+    public float moveSpeed = 5f;
+    public float jumpVelocity = 5.0f;
 
-    public Vector3 velocity = new Vector3();
-    public Vector3 heading = new Vector3();
+    public Vector3 velocity = Vector3.zero;
+    public Vector3 heading = Vector3.zero;
 
     public float halfHeight = 0;
 
     public bool fallingDown = false;
     public bool jumpingUp = false;
     public bool movingEdge = false;
-    public float jumpVelocity = 5.0f;
 
     public Vector3 jumpTarget;
 
-    public void Init()
+    private bool displayPath = false;
+
+    public void InitMovement(bool intoBattle, TacticsBattle tacticsBattle)
     {
-        tactics = GetComponent<Tactics>();
-        GameObject[] tileObjects = GameObject.FindGameObjectsWithTag("Tile");
-        foreach (GameObject tileObject in tileObjects)
-        {
-            if (tileObject.TryGetComponent<Tile>(out var tile))
-            {
-                tiles.Add(tile);
-            }
-        }
+        this.intoBattle = intoBattle;
+        this.tacticsBattle = tacticsBattle;
 
         halfHeight = GetComponent<Collider>().bounds.extents.y;
     }
 
-    protected void GetCurrentTile()
-    {
-        currentTile = GetTargetTile(gameObject);
-        if (currentTile != null)
-        {
-            currentTile.current = true;
-            currentTile.distance = 0;
-        }
-    }
-
-    protected Tile GetTargetTile(GameObject target)
-    {
-        RaycastHit raycastHit;
-        Tile tile = null;
-
-        if (Physics.Raycast(target.transform.position, -Vector3.up, out raycastHit, 1))
-        {
-            tile = raycastHit.collider.GetComponent<Tile>();
-        }
-
-        return tile;
-    }
-
-    protected void ComputeAdjacencyLists()
-    {
-        foreach (Tile tile in tiles)
-        {
-            tile.FindNeighbors(heightMax);
-        }
-    }
-
-    public void FindSelectableTiles()
-    {
-        selectableTiles.Clear();
-
-        ComputeAdjacencyLists();
-        GetCurrentTile();
-
-        Queue<Tile> process = new Queue<Tile>();
-
-        process.Enqueue(currentTile);
-        currentTile.visited = true;
-
-        while (process.Count > 0)
-        {
-            Tile tileProcess = process.Dequeue();
-
-            selectableTiles.Add(tileProcess);
-            tileProcess.selectable = true;
-
-            if (tileProcess.distance < tactics.movementPoint)
-            {
-                foreach (Tile tile in tileProcess.adjacencyList)
-                {
-                    if (!tile.visited)
-                    {
-                        tile.parent = tileProcess;
-                        tile.visited = true;
-                        tile.distance = 1 + tileProcess.distance;
-                        process.Enqueue(tile);
-                    }
-                }
-            }
-        }
-    }
-
-    public void DisplayPath(Tile tile)
-    {
-        CheckMove(tile);
-    }
-
     public void MoveToTile(Tile tile)
     {
-        tactics.isMoving = true;
-        CheckMove(tile);
-    }
-
-    private void CheckMove(Tile tile)
-    {
-        path.Clear();
-
-        Tile next = tile;
-        while (next != null)
+        if (intoBattle)
         {
-            next.hover = true;
-            path.Push(next);
-            next = next.parent;
+            tacticsBattle.isMoving = true;
         }
+
+        PathMove(tile);
     }
 
     public void Move()
@@ -135,19 +48,19 @@ public class TacticsMove : MonoBehaviour
         if (path.Count <= 0)
         {
             RemoveSelectableTiles();
-            tactics.isMoving = false;
+            if (intoBattle)
+            {
+                tacticsBattle.isMoving = false;
+            }
             return;
         }
 
         Tile tile = path.Peek();
         Vector3 target = tile.transform.position;
-
-        // Calcule la position de l'unité au-dessus de la tuile cible
         target.y += halfHeight + tile.GetComponent<Collider>().bounds.extents.y;
 
         if (Vector3.Distance(transform.position, target) >= 0.01f * moveSpeed)
         {
-
             CalculateHeading(target);
 
             if (transform.position.y != target.y)
@@ -159,23 +72,38 @@ public class TacticsMove : MonoBehaviour
                 SetHorizontalVelocity();
             }
 
-            // Locomotion
             transform.forward = heading;
             transform.position += velocity * Time.deltaTime;
-            // Verrouiller la rotation sur l'axe x
             LockRotationXAndZ();
         }
         else
         {
-            // Centre de la tuile atteint
             transform.position = target;
             path.Pop();
 
-            if (!tile.current)
+            if (!tile.current && intoBattle)
             {
-                tactics.movementPoint--;
+                tacticsBattle.movementPoint--;
             }
         }
+    }
+
+    public void PathMove(Tile tile)
+    {
+        path.Clear();
+
+        Tile next = tile;
+        while (next != null)
+        {
+            next.hover = displayPath;
+            path.Push(next);
+            next = next.parent;
+        }
+    }
+
+    public void SetDisplayPath(bool displayPath)
+    {
+        this.displayPath = displayPath;
     }
 
     private void LockRotationXAndZ()
@@ -185,26 +113,10 @@ public class TacticsMove : MonoBehaviour
         transform.rotation = rotation;
     }
 
-    private void RemoveSelectableTiles()
-    {
-        if (currentTile != null)
-        {
-            currentTile.current = false;
-            currentTile = null;
-        }
-
-        foreach (Tile tile in selectableTiles)
-        {
-            tile.Reset();
-        }
-
-        selectableTiles.Clear();
-    }
-
     private void CalculateHeading(Vector3 target)
     {
         heading = target - transform.position;
-        if (heading.magnitude > 0.01f) // Vérification que heading n'est pas presque nul
+        if (heading.magnitude > 0.01f)
         {
             heading.Normalize();
         }
@@ -253,7 +165,7 @@ public class TacticsMove : MonoBehaviour
             position.y = target.y;
             transform.position = position;
 
-            velocity = new Vector3();
+            velocity = Vector3.zero;
         }
     }
 

@@ -27,4 +27,19 @@ public class MenuScript
             tile.AddComponent<Tile>();
         }
     }
+
+    [MenuItem("Tools/Assign Rigidbody Script")]
+    public static void AssignRigidbodyScript()
+    {
+        GameObject[] tiles = GameObject.FindGameObjectsWithTag("Tile");
+
+        foreach (GameObject tile in tiles)
+        {
+            tile.AddComponent<Rigidbody>();
+            Rigidbody rigidbody = tile.GetComponent<Rigidbody>();
+            rigidbody.isKinematic = true;
+            rigidbody.angularDrag = 0;
+            rigidbody.useGravity = false;
+        }
+    }
 }
