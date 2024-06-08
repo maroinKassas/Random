@@ -1,40 +1,75 @@
 using UnityEngine;
+using UnityEngine.TextCore.Text;
 
-public class Player : MonoBehaviour
+public class Player : Character
 {
-    private Tactics tactics;
-    private TacticsMove tacticsMove;
-
-    void Start()
+    private new void Start()
     {
-        tactics = GetComponent<Tactics>();
-        tacticsMove = GetComponent<TacticsMove>();
-
-        tactics.Init();
-        tacticsMove.Init();
+        base.Start();
     }
 
-    void Update()
+    private new void Update()
     {
-        if (!tactics.turn)
+        base.Update();
+    }
+
+    protected override void BattleUpdate()
+    {
+        if (!tacticsBattle.turn)
         {
             return;
         }
 
-        if (!tactics.isMoving)
+        if (!tacticsBattle.isMoving)
         {
-            tacticsMove.FindSelectableTiles();
-            OnMouseOver();
+            tacticsMove.FindSelectableTiles(tacticsBattle.movementPoint);
+            HandleMouseOver();
         }
         else
         {
             tacticsMove.Move();
         }
 
-        tactics.SetStatsText();
+        tacticsBattle.SetStatsText();
     }
 
-    public void OnMouseOver()
+    protected override void ExplorationUpdate()
+    {
+        Tile tile = PickTile();
+        if (tile != null)
+        {
+            tacticsMove.SetDisplayPath(false);
+            HandleClick(tile);
+        }
+        tacticsMove.Move();
+    }
+
+    private void HandleMouseOver()
+    {
+        Tile tile = PickTile();
+        if (tile == null || !tile.selectable)
+        {
+            return;
+        }
+
+        tacticsMove.SetDisplayPath(true);
+        tacticsMove.PathMove(tile);
+
+        if (Input.GetMouseButtonUp(0))
+        {
+            tacticsMove.MoveToTile(tile);
+        }
+    }
+
+    private void HandleClick(Tile tile)
+    {
+        if (Input.GetMouseButton(0))
+        {
+            tacticsMove.MoveToTile(tile);
+        }
+    }
+
+    private Tile PickTile()
     {
         Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
 
@@ -43,16 +78,9 @@ public class Player : MonoBehaviour
             if (raycastHit.collider.CompareTag("Tile"))
             {
                 Tile tile = raycastHit.collider.GetComponent<Tile>();
-
-                if (tile.selectable)
-                {
-                    tacticsMove.DisplayPath(tile);
-                    if (Input.GetMouseButtonUp(0))
-                    {
-                        tacticsMove.MoveToTile(tile);
-                    }
-                }
+                return tile;
             }
         }
+        return null;
     }
 }
