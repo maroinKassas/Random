@@ -5,10 +5,6 @@ using UnityEngine.TextCore.Text;
 
 public class NPC : Character
 {
-    private GameObject enemy;
-    private Tile tileEnemy;
-    private Tile tileNearest;
-
     private new void Start()
     {
         base.Start();
@@ -28,21 +24,14 @@ public class NPC : Character
 
         if (!tacticsBattle.isMoving)
         {
-            FindNearestEnemy();
-            tileEnemy = tacticsMove.GetTargetTile(enemy);
-            tileEnemy.FindNeighbors(tacticsMove.heightMax);
-            tacticsMove.FindSelectableTiles(Constante.DISTANCE_COMBAT_MAX);
-            CalculatePath();
-            tacticsMove.MoveToTile(tileNearest);
-
+            GameObject enemy = FindNearestEnemy();
+            MoveToEnemy(enemy);
             tacticsBattle.EndsHisTurn();
         }
         else
         {
             tacticsMove.Move();
         }
-
-        tacticsBattle.SetStatsText();
     }
 
     protected override void ExplorationUpdate()
@@ -50,7 +39,7 @@ public class NPC : Character
         // TODO
     }
 
-    private void FindNearestEnemy()
+    private GameObject FindNearestEnemy()
     {
         GameObject[] enemies = GameObject.FindGameObjectsWithTag("Player");
 
@@ -59,7 +48,7 @@ public class NPC : Character
 
         foreach (GameObject enemy in enemies)
         {
-            float distance = Vector3.Distance(transform.position, enemy.transform.position);
+            float distance = GetDistanceEnemy(enemy);
 
             if (distance < distanceNearest)
             {
@@ -68,17 +57,31 @@ public class NPC : Character
             }
         }
 
-        this.enemy = nearestEnemy;
+        return nearestEnemy;
     }
 
-    private void CalculatePath()
+    private void MoveToEnemy(GameObject enemy)
+    {
+        if (GetDistanceEnemy(enemy) > 1)
+        {
+            Tile tileEnemy = tacticsMove.GetTargetTile(enemy);
+            tileEnemy.FindNeighbors();
+            tacticsMove.FindSelectableTiles(false, Constante.DISTANCE_COMBAT_MAX);
+            Tile tileNearest = GetTileNearest(tileEnemy);
+            tacticsMove.MoveToTile(tileNearest);
+        }
+    }
+
+    private Tile GetTileNearest(Tile tileEnemy)
     {
         if (tileEnemy.adjacencyList.Count == 0)
         {
-            return;
+            return null;
         }
 
+        Tile tileNearest = null;
         Tile tileAdjacency = null;
+
         float shortestDistance = Constante.DISTANCE_COMBAT_MAX;
 
         foreach (Tile tile in tileEnemy.adjacencyList)
@@ -91,11 +94,18 @@ public class NPC : Character
         }
 
         tacticsMove.PathMove(tileAdjacency);
-        tacticsMove.FindSelectableTiles(tacticsBattle.movementPoint);
+        tacticsMove.FindSelectableTiles(false, tacticsBattle.movementPoint);
 
         if (tacticsMove.path != null && tacticsMove.path.Count > 0)
         {
             tileNearest = tacticsMove.path.OrderByDescending(tile => tile.distance).FirstOrDefault();
         }
+
+        return tileNearest;
+    }
+
+    private float GetDistanceEnemy(GameObject enemy)
+    {
+        return Vector3.Distance(transform.position, enemy.transform.position);
     }
 }

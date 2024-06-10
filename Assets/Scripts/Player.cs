@@ -22,15 +22,13 @@ public class Player : Character
 
         if (!tacticsBattle.isMoving)
         {
-            tacticsMove.FindSelectableTiles(tacticsBattle.movementPoint);
+            tacticsMove.FindSelectableTiles(true, tacticsBattle.movementPoint);
             HandleMouseOver();
         }
         else
         {
             tacticsMove.Move();
         }
-
-        tacticsBattle.SetStatsText();
     }
 
     protected override void ExplorationUpdate()
@@ -79,6 +77,21 @@ public class Player : Character
             {
                 Tile tile = raycastHit.collider.GetComponent<Tile>();
                 return tile;
+            }
+        }
+        return null;
+    }
+
+    private Character ClickOnCharacter()
+    {
+        Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+
+        if (Physics.Raycast(ray, out RaycastHit raycastHit))
+        {
+            if (raycastHit.collider.CompareTag("Character"))
+            {
+                Character character = raycastHit.collider.GetComponent<Character>();
+                return character;
             }
         }
         return null;

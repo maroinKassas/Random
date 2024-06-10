@@ -4,12 +4,58 @@ using UnityEngine;
 
 public class BattleManager : MonoBehaviour
 {
-    private static List<Tile> battleMap = new List<Tile>();
     private static readonly Queue<TacticsBattle> turnQueue = new Queue<TacticsBattle>();
+
+    public static readonly List<Vector3> BattlePositionsMonster = new List<Vector3>
+    {
+        new Vector3(6, 0.75f, 6),
+        new Vector3(6, 0.75f, 5),
+        new Vector3(6, 0.75f, 4),
+        new Vector3(6, 0.75f, 3),
+        new Vector3(6, 0.75f, 2),
+        new Vector3(6, 0.75f, 1),
+        new Vector3(6, 0.75f, 0),
+        new Vector3(5, 0.75f, 6),
+        new Vector3(5, 0.75f, 5),
+        new Vector3(5, 0.75f, 4),
+        new Vector3(5, 0.75f, 3),
+        new Vector3(5, 0.75f, 2),
+        new Vector3(5, 0.75f, 1),
+        new Vector3(5, 0.75f, 0)
+    };
+
+    public static readonly List<Vector3> BattlePositionsPlayer = new List<Vector3>
+    {
+        new Vector3(0, 0.75f, 6),
+        new Vector3(0, 0.75f, 5),
+        new Vector3(0, 0.75f, 4),
+        new Vector3(0, 0.75f, 3),
+        new Vector3(0, 0.75f, 2),
+        new Vector3(0, 0.75f, 1),
+        new Vector3(0, 0.75f, 0),
+        new Vector3(1, 0.75f, 6),
+        new Vector3(1, 0.75f, 5),
+        new Vector3(1, 0.75f, 4),
+        new Vector3(1, 0.75f, 3),
+        new Vector3(1, 0.75f, 2),
+        new Vector3(1, 0.75f, 1),
+        new Vector3(1, 0.75f, 0)
+    };
 
     public static void Init()
     {
-        SetBattleMap();
+        foreach (TacticsBattle tacticsBattle in turnQueue)
+        {
+            if (tacticsBattle.CompareTag("Monster"))
+            {
+                tacticsBattle.transform.position = RandomPostion(BattlePositionsMonster);
+            }
+
+            if (tacticsBattle.CompareTag("Player"))
+            {
+                tacticsBattle.transform.position = RandomPostion(BattlePositionsPlayer);
+            }
+        }
         StartTurn();
     }
 
@@ -37,20 +83,12 @@ public class BattleManager : MonoBehaviour
         turnQueue.Enqueue(tacticsBattle);
     }
 
-    private static void SetBattleMap()
+    private static Vector3 RandomPostion(List<Vector3> battlePostion)
     {
-        GameObject[] tileObjects = GameObject.FindGameObjectsWithTag("Tile");
-        foreach (GameObject tileObject in tileObjects)
-        {
-            if (tileObject.TryGetComponent<Tile>(out var tile))
-            {
-                battleMap.Add(tile);
-            }
-        }
-    }
+        int randomIndex = Random.Range(0, battlePostion.Count);
+        Vector3 randomPosition = battlePostion[randomIndex];
+        battlePostion.RemoveAt(randomIndex);
 
-    public static List<Tile> GetBattleMap()
-    {
-        return battleMap;
+        return randomPosition;
     }
 }
