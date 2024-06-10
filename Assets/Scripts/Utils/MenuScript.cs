@@ -1,7 +1,7 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using UnityEditor;
+using System.Security.Cryptography;
+using Unity.VisualScripting;
 
 public class MenuScript
 {
@@ -40,6 +40,18 @@ public class MenuScript
             rigidbody.isKinematic = true;
             rigidbody.angularDrag = 0;
             rigidbody.useGravity = false;
+        }
+    }
+
+    [MenuItem("Tools/Delete Rigidbody Script")]
+    public static void DeleteRigidbodyScript()
+    {
+        GameObject[] tiles = GameObject.FindGameObjectsWithTag("Tile");
+
+        foreach (GameObject tile in tiles)
+        {
+            Rigidbody rigidbody = tile.GetComponent<Rigidbody>();
+            Object.DestroyImmediate(rigidbody);
         }
     }
 }
