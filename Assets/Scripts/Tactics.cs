@@ -4,10 +4,21 @@ using UnityEngine;
 
 public class Tactics : MonoBehaviour
 {
+    private static readonly List<Tile> battleMap = new List<Tile>();
     public List<Tile> selectableTiles = new List<Tile>();
     public Tile currentTile;
 
-    public float heightMax = -1.5f;
+    public void InitBattleMap()
+    {
+        GameObject[] tileObjects = GameObject.FindGameObjectsWithTag("Tile");
+        foreach (GameObject tileObject in tileObjects)
+        {
+            if (tileObject.TryGetComponent<Tile>(out var tile))
+            {
+                battleMap.Add(tile);
+            }
+        }
+    }
 
     public Tile GetTargetTile(GameObject target)
     {
@@ -33,13 +44,13 @@ public class Tactics : MonoBehaviour
 
     protected void ComputeAdjacencyLists()
     {
-        foreach (Tile tile in BattleManager.GetBattleMap())
+        foreach (Tile tile in battleMap)
         {
-            tile.FindNeighbors(heightMax);
+            tile.FindNeighbors();
         }
     }
 
-    public void FindSelectableTiles(float distancePoint)
+    public void FindSelectableTiles(bool selectable, float distancePoint)
     {
         selectableTiles.Clear();
 
@@ -50,13 +61,13 @@ public class Tactics : MonoBehaviour
 
         process.Enqueue(currentTile);
         currentTile.visited = true;
-
+        
         while (process.Count > 0)
         {
             Tile tileProcess = process.Dequeue();
 
             selectableTiles.Add(tileProcess);
-            tileProcess.selectable = true;
+            tileProcess.selectable = selectable;
 
             if (tileProcess.distance < distancePoint)
             {

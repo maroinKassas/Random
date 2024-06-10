@@ -4,7 +4,6 @@ using UnityEngine;
 
 public class Tile : MonoBehaviour
 {
-    public bool walkable = true;
     public bool current = false;
     public bool selectable = false;
     public bool hover = false;
@@ -23,11 +22,7 @@ public class Tile : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if (current)
-        {
-            GetComponent<Renderer>().material.color = Color.black;
-        }
-        else if (hover)
+        if (hover)
         {
             GetComponent<Renderer>().material.color = Color.green;
         }
@@ -54,27 +49,25 @@ public class Tile : MonoBehaviour
         distance = 0;
     }
 
-    public void FindNeighbors(float jumpHeight)
+    public void FindNeighbors()
     {
         Reset();
-        CheckTile(Vector3.forward, jumpHeight);
-        CheckTile(-Vector3.forward, jumpHeight);
-        CheckTile(Vector3.right, jumpHeight);
-        CheckTile(-Vector3.right, jumpHeight);
+        CheckTile(Vector3.forward);
+        CheckTile(-Vector3.forward);
+        CheckTile(Vector3.right);
+        CheckTile(-Vector3.right);
     }
 
-    public void CheckTile(Vector3 direction, float jumpHeight)
+    public void CheckTile(Vector3 direction)
     {
-        Vector3 halfExtents = new Vector3(0.25f, (1 + jumpHeight) / 2.0f, 0.25f);
+        Vector3 halfExtents = new Vector3(0.25f, 1.0f, 0.25f);
         Collider[] colliders = Physics.OverlapBox(transform.position + direction, halfExtents);
 
         foreach (Collider item in colliders)
         {
-            Tile tile = item.GetComponent<Tile>();
-            if (tile != null && tile.walkable)
+            if (item.TryGetComponent<Tile>(out var tile))
             {
-                RaycastHit raycastHit;
-                if (!Physics.Raycast(tile.transform.position, Vector3.up, out raycastHit, 1))
+                if (!Physics.Raycast(tile.transform.position, Vector3.up, out _, 1))
                 {
                     adjacencyList.Add(tile);
                 }
