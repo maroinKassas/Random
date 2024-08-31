@@ -44,9 +44,9 @@
 *.cubemap
 *.flare
 *.mat
-*.meta
+#*.meta
 *.prefab
-*.unity
+#*.unity
 *.anim
 *.controller
 *.mask
