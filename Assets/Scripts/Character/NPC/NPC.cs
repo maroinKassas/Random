@@ -3,7 +3,7 @@ using System.Linq;
 using UnityEngine;
 using UnityEngine.TextCore.Text;
 
-public class Monster : Character
+public class NPC : Character
 {
     private new void Start()
     {

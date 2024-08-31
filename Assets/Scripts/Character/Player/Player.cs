@@ -1,17 +1,19 @@
 using System.Collections;
-using System.Threading;
 using UnityEngine;
 using UnityEngine.TextCore.Text;
 
 public class Player : Character
 {
-    private Monster monster;
+    private NPC monster;
+    private LayerMask tileLayerMask;
+    private LayerMask monsterLayerMask;
 
     private new void Start()
     {
         base.Start();
+        tileLayerMask = LayerMask.GetMask("Tile");
+        monsterLayerMask = LayerMask.GetMask("Monster");
     }
-
     private new void Update()
     {
         base.Update();
@@ -71,19 +73,19 @@ public class Player : Character
     {
         Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
 
-        if (Physics.Raycast(ray, out RaycastHit raycastHit))
+        if (Physics.Raycast(ray, out RaycastHit raycastHit, Mathf.Infinity, tileLayerMask | monsterLayerMask))
         {
-            if (raycastHit.collider.CompareTag("Tile"))
+            int objectLayer = raycastHit.collider.gameObject.layer;
+
+            if ((tileLayerMask & (1 << objectLayer)) != 0)
             {
-                Tile tile = raycastHit.collider.GetComponent<Tile>();
-                return tile;
+                return raycastHit.collider.GetComponent<Tile>();
             }
 
-            if (raycastHit.collider.CompareTag("Monster") && !intoBattle)
+            if ((monsterLayerMask & (1 << objectLayer)) != 0 && !intoBattle)
             {
-                monster = raycastHit.collider.GetComponent<Monster>();
-                Tile tile = tacticsMove.GetTargetTile(monster.gameObject);
-                return tile;
+                monster = raycastHit.collider.GetComponent<NPC>();
+                return tacticsMove.GetTargetTile(monster.gameObject);
             }
         }
         return null;
@@ -103,8 +105,8 @@ public class Player : Character
                 yield return null;
             }
 
-            this.GoIntoBattle();
-            monsterCollider.GetComponent<Monster>().GoIntoBattle();
+            GoIntoBattle();
+            monsterCollider.GetComponent<NPC>().GoIntoBattle();
 
             BattleManager.Init();
         }
