@@ -1,15 +1,16 @@
-using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
 public class Tactics : MonoBehaviour
 {
-    private static readonly List<Tile> battleMap = new List<Tile>();
+    private static List<Tile> battleMap;
     public List<Tile> selectableTiles = new List<Tile>();
     public Tile currentTile;
 
     public void InitBattleMap()
     {
+        battleMap = new List<Tile>();
+
         GameObject[] tileObjects = GameObject.FindGameObjectsWithTag("Tile");
         foreach (GameObject tileObject in tileObjects)
         {

@@ -108,14 +108,4 @@ public class NPC : Character
     {
         return Vector3.Distance(transform.position, enemy.transform.position);
     }
-
-    private void OnMouseOver()
-    {
-        transform.Find("CanvasMonster").gameObject.SetActive(true);
-    }
-
-    private void OnMouseExit()
-    {
-        transform.Find("CanvasMonster").gameObject.SetActive(false);
-    }
 }

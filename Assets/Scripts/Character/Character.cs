@@ -36,4 +36,14 @@ public abstract class Character : MonoBehaviour
 
         tacticsMove.SetTacticsBattle(true, tacticsBattle);
     }
+
+    private void OnMouseOver()
+    {
+        transform.Find("InterfaceCharacter").gameObject.SetActive(true);
+    }
+
+    private void OnMouseExit()
+    {
+        transform.Find("InterfaceCharacter").gameObject.SetActive(false);
+    }
 }

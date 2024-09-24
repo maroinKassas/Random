@@ -1,4 +1,3 @@
-using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -6,40 +5,54 @@ public class BattleManager : MonoBehaviour
 {
     private static readonly Queue<TacticsBattle> turnQueue = new Queue<TacticsBattle>();
 
+    private static readonly float posY = 1.0f;
+
     public static readonly List<Vector3> BattlePositionsMonster = new List<Vector3>
     {
-        new Vector3(6, 0.75f, 6),
-        new Vector3(6, 0.75f, 5),
-        new Vector3(6, 0.75f, 4),
-        new Vector3(6, 0.75f, 3),
-        new Vector3(6, 0.75f, 2),
-        new Vector3(6, 0.75f, 1),
-        new Vector3(6, 0.75f, 0),
-        new Vector3(5, 0.75f, 6),
-        new Vector3(5, 0.75f, 5),
-        new Vector3(5, 0.75f, 4),
-        new Vector3(5, 0.75f, 3),
-        new Vector3(5, 0.75f, 2),
-        new Vector3(5, 0.75f, 1),
-        new Vector3(5, 0.75f, 0)
+        new Vector3(9, posY, 9),
+        new Vector3(9, posY, 8),
+        new Vector3(9, posY, 7),
+        new Vector3(9, posY, 6),
+        new Vector3(9, posY, 5),
+        new Vector3(9, posY, 4),
+        new Vector3(9, posY, 3),
+        new Vector3(9, posY, 2),
+        new Vector3(9, posY, 1),
+        new Vector3(9, posY, 0),
+        new Vector3(8, posY, 9),
+        new Vector3(8, posY, 8),
+        new Vector3(8, posY, 7),
+        new Vector3(8, posY, 6),
+        new Vector3(8, posY, 5),
+        new Vector3(8, posY, 4),
+        new Vector3(8, posY, 3),
+        new Vector3(8, posY, 2),
+        new Vector3(8, posY, 1),
+        new Vector3(8, posY, 0)
     };
 
     public static readonly List<Vector3> BattlePositionsPlayer = new List<Vector3>
     {
-        new Vector3(0, 0.75f, 6),
-        new Vector3(0, 0.75f, 5),
-        new Vector3(0, 0.75f, 4),
-        new Vector3(0, 0.75f, 3),
-        new Vector3(0, 0.75f, 2),
-        new Vector3(0, 0.75f, 1),
-        new Vector3(0, 0.75f, 0),
-        new Vector3(1, 0.75f, 6),
-        new Vector3(1, 0.75f, 5),
-        new Vector3(1, 0.75f, 4),
-        new Vector3(1, 0.75f, 3),
-        new Vector3(1, 0.75f, 2),
-        new Vector3(1, 0.75f, 1),
-        new Vector3(1, 0.75f, 0)
+        new Vector3(1, posY, 9),
+        new Vector3(1, posY, 8),
+        new Vector3(1, posY, 7),
+        new Vector3(1, posY, 6),
+        new Vector3(1, posY, 5),
+        new Vector3(1, posY, 4),
+        new Vector3(1, posY, 3),
+        new Vector3(1, posY, 2),
+        new Vector3(1, posY, 1),
+        new Vector3(1, posY, 0),
+        new Vector3(0, posY, 9),
+        new Vector3(0, posY, 8),
+        new Vector3(0, posY, 7),
+        new Vector3(0, posY, 6),
+        new Vector3(0, posY, 5),
+        new Vector3(0, posY, 4),
+        new Vector3(0, posY, 3),
+        new Vector3(0, posY, 2),
+        new Vector3(0, posY, 1),
+        new Vector3(0, posY, 0)
     };
 
     public static void Init()
@@ -90,5 +103,17 @@ public class BattleManager : MonoBehaviour
         battlePostion.RemoveAt(randomIndex);
 
         return randomPosition;
+    }
+
+    public static void GiveUp()
+    {
+        SceneManagerScript.LoadScene(Constante.MAIN_SCENE);
+
+        foreach (TacticsBattle tacticsBattle in turnQueue)
+        {
+            DestroyImmediate(tacticsBattle.gameObject);
+        }  
+
+        turnQueue.Clear();
     }
 }

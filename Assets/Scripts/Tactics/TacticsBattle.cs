@@ -11,7 +11,6 @@ public class TacticsBattle : Tactics
     public int healthPoint;
     public float totalTime;
     public int movementPoint;
-    public int manaPoint;
     public int riskPoint;
 
     private Coroutine timerCoroutine;
@@ -22,7 +21,6 @@ public class TacticsBattle : Tactics
         healthPoint = stats.healthPoint;
         totalTime = stats.totalTime;
         movementPoint = stats.movementPoint;
-        manaPoint = stats.manaPoint;
         riskPoint = stats.riskPoint;
 
         InitBattleMap();
@@ -50,7 +48,6 @@ public class TacticsBattle : Tactics
     {
         totalTime = stats.totalTime;
         movementPoint = stats.movementPoint;
-        manaPoint = stats.manaPoint;
     }
 
     private IEnumerator StartTimer()
