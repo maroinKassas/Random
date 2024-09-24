@@ -13,19 +13,29 @@ public class Tile : MonoBehaviour
 
     public List<Tile> adjacencyList = new List<Tile>();
 
+    private Vector3Int coordinates;
+    private Renderer tileRenderer;
+
+
+    private void Start()
+    {
+        tileRenderer = GetComponent<Renderer>();
+        coordinates = Vector3Int.FloorToInt(gameObject.transform.position);
+    }
+
     void Update()
     {
         if (hover)
         {
-            GetComponent<Renderer>().material.color = Color.green;
+            tileRenderer.material.color = Color.green;
         }
         else if (selectable)
         {
-            GetComponent<Renderer>().material.color = Color.blue;
+            tileRenderer.material.color = Color.blue;
         }
         else
         {
-            GetComponent<Renderer>().material.color = Color.white;
+            tileRenderer.material.color = Color.white;
         }
     }
 
@@ -66,5 +76,15 @@ public class Tile : MonoBehaviour
                 }
             }
         }
+    }
+
+    public Vector3Int GetCoordinates()
+    {
+        return this.coordinates;
+    }
+
+    public void SetCoordinates(Vector3Int newCoordinates)
+    {
+        this.coordinates = newCoordinates;
     }
 }
