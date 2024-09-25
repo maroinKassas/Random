@@ -1354,6 +1354,14 @@ PrefabInstance:
       propertyPath: m_Enabled
       value: 1
       objectReference: {fileID: 0}
+    - target: {fileID: 7068143486251898655, guid: a2f62cc51bf430f43a18ef5240716adf, type: 3}
+      propertyPath: gridSize.x
+      value: 10
+      objectReference: {fileID: 0}
+    - target: {fileID: 7068143486251898655, guid: a2f62cc51bf430f43a18ef5240716adf, type: 3}
+      propertyPath: gridSize.y
+      value: 10
+      objectReference: {fileID: 0}
     - target: {fileID: 7300901550394746694, guid: a2f62cc51bf430f43a18ef5240716adf, type: 3}
       propertyPath: m_RootOrder
       value: 3
@@ -1469,6 +1477,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: cd45d50a63d5aec4e8f1be17545058da, type: 3}
+--- !u!1 &778124763 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 4264655702695350053, guid: cd45d50a63d5aec4e8f1be17545058da, type: 3}
+  m_PrefabInstance: {fileID: 778124762}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &797033875
 GameObject:
   m_ObjectHideFlags: 0
@@ -1692,9 +1705,9 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 954429450}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: -0.000061035156, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 0, y: 0, z: 0}
+  m_ConstrainProportionsScale: 1
   m_Children: []
   m_Father: {fileID: 287748583}
   m_RootOrder: 3
@@ -1711,6 +1724,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 47dff11d7cca8de4ea053aa9b993650f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  playerGameObject: {fileID: 778124763}
   textHealthPoint: {fileID: 30027008}
   textRiskPoint: {fileID: 1028554174}
   textMovementPoint: {fileID: 1199398281}

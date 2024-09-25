@@ -1,13 +1,11 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 public class Constante : MonoBehaviour
 {
     public const float MOVEMENT_SPEED = 7f;
 
-    public const string MAIN_SCENE = "MainScene";
-    public const string BATTLE_SCENE = "BattleScene";
+    public const string EXPLORATION_SCENE = "ExplorationScene";
+    public const string COMBAT_SCENE = "CombatScene";
 
     public const float SUN_ROTATION_SPEED = 0.5f;
 

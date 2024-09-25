@@ -1,6 +1,5 @@
 using System.Collections.Generic;
 using UnityEngine;
-using static UnityEditor.Experimental.GraphView.GraphView;
 
 public class GridManager : MonoBehaviour
 {
@@ -9,30 +8,9 @@ public class GridManager : MonoBehaviour
     private readonly Dictionary<Vector2Int, Node> grid = new Dictionary<Vector2Int, Node>();
     public Dictionary<Vector2Int, Node> Grid { get { return grid; } }
 
-    private List<GameObject> players;
-    private List<GameObject> monsters;
-
-    private void Awake()
+     private void Awake()
     {
-        players = new List<GameObject>(GameObject.FindGameObjectsWithTag("Player"));
-        monsters = new List<GameObject>(GameObject.FindGameObjectsWithTag("Monster"));
-
         CreateGrid();
-    }
-
-    public void Update()
-    {
-        /*foreach (var player in players)
-        {
-            Vector2Int playerCords = GetCoordinatesFromPosition(player.transform.position);
-            grid[playerCords].blocked = true;
-        }
-
-        foreach (var monster in monsters)
-        {
-            Vector2Int playerCords = GetCoordinatesFromPosition(monster.transform.position);
-            grid[playerCords].blocked = true;
-        }*/
     }
 
     public Node GetNode(Vector2Int coordinates)

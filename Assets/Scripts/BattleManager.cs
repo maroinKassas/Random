@@ -107,7 +107,7 @@ public class BattleManager : MonoBehaviour
 
     public static void GiveUp()
     {
-        SceneManagerScript.LoadScene(Constante.MAIN_SCENE);
+        SceneManagerScript.LoadScene(Constante.EXPLORATION_SCENE);
 
         foreach (TacticsBattle tacticsBattle in turnQueue)
         {

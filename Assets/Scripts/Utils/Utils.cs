@@ -1,4 +1,5 @@
 using UnityEngine;
+
 public class Utils
 {
     public static Vector2Int GetCurrentCoordinates(GameObject gameObject)

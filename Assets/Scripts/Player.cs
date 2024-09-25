@@ -98,7 +98,7 @@ public class Player : Character
             DontDestroyOnLoad(gameObject);
             DontDestroyOnLoad(monsterCollider.gameObject);
 
-            AsyncOperation asyncLoad = SceneManagerScript.LoadScene(Constante.BATTLE_SCENE);
+            AsyncOperation asyncLoad = SceneManagerScript.LoadScene(Constante.COMBAT_SCENE);
 
             while (!asyncLoad.isDone)
             {

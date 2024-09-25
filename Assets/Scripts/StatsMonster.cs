@@ -1,6 +1,3 @@
-using System.Collections.Generic;
-using UnityEngine;
-
 public class StatsMonster : Stats
 {
     private new void Start()

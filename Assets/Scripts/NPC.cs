@@ -1,7 +1,5 @@
-using System.IO;
 using System.Linq;
 using UnityEngine;
-using UnityEngine.TextCore.Text;
 
 public class NPC : Character
 {

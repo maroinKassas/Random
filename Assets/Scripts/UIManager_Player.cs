@@ -3,6 +3,8 @@ using UnityEngine;
 
 public class UIManager_Player : MonoBehaviour
 {
+    [SerializeField]
+    private GameObject playerGameObject;
     private TacticsBattle tacticsBattle;
 
     public TextMeshProUGUI textHealthPoint;
@@ -12,7 +14,7 @@ public class UIManager_Player : MonoBehaviour
 
     public void Start()
     {
-        tacticsBattle = GameObject.FindGameObjectWithTag("Player").GetComponent<TacticsBattle>();
+        tacticsBattle = playerGameObject.GetComponent<TacticsBattle>();
     }
 
     public void Update()
